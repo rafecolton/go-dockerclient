@@ -11,8 +11,6 @@ import (
 	"path/filepath"
 	"strings"
 	"syscall"
-
-	"github.com/docker/docker/pkg/pools"
 )
 
 func createTarStream(srcPath string) (io.ReadCloser, error) {
@@ -31,8 +29,8 @@ func createTarStream(srcPath string) (io.ReadCloser, error) {
 
 	// since the errors here don't get returned, should we log them somehow
 	go func() {
-		twBuf := pools.BufioWriter32KPool.Get(nil)
-		defer pools.BufioWriter32KPool.Put(twBuf)
+		twBuf := writePoolGet()
+		defer writePoolPut(twBuf)
 
 		filepath.Walk(srcPath, func(filePath string, f os.FileInfo, err error) error {
 			if err != nil {
